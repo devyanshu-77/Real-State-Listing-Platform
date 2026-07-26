@@ -46,15 +46,61 @@ async function registerController(req, res) {
     message: "Registered new user",
     data: [
       {
-        username,
-        email,
-        role,
-        bio,
-        phone,
+        username: user.username,
+        email: user.email,
+        bio: user.bio,
+        phone: user.phone,
+        id: user._id,
+      },
+    ],
+  });
+}
+async function loginController(req, res) {
+  const { username, email, password } = req.body;
+  const user = await userModel.findOne({
+    $or: [{ username }, { email }],
+  });
+  const resMessage = {
+    username: "Invalid username or password",
+    email: "Invalid email or password",
+  };
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: username ? resMessage.username : resMessage.email,
+      errors: [],
+    });
+  }
+
+  const compareResult = await bcrypt.compare(password, user.password);
+  if (!compareResult) {
+    return res.status(401).json({
+      success: false,
+      message: username ? resMessage.username : resMessage.email,
+      errors: [],
+    });
+  }
+  console.log(result);
+  const token = jwt.sign(
+    {
+      role: user.role,
+      id: user._id,
+    },
+    JWT_SECRET,
+  );
+  res.cookie("token", token);
+  res.status(200).json({
+    success: true,
+    message: "User login successfully",
+    data: [
+      {
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
         id: user._id,
       },
     ],
   });
 }
 
-export { registerController };
+export { registerController, loginController };
