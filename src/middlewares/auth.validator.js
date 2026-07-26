@@ -5,8 +5,6 @@ function signupValidator(req, res, next) {
   if (error.isEmpty()) {
     return next();
   }
-  console.log("reached here");
-  console.log(error.array());
   res.json({ errors: error.array() });
 }
 
