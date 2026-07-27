@@ -7,7 +7,7 @@ function signupValidator(req, res, next) {
   }
   res.json({ errors: error.array() });
 }
-const allowedUsers = ["admin", "buyer", "property_owner"];
+const allowedUsers = ["admin", "buyer", "property_owner", "tenant"];
 const registerUserRules = [
   body("username")
     .exists()

@@ -1,6 +1,6 @@
 function globalErrorHandler(err, req, res, next) {
   if (err.isOperational) {
-    console.log("Operational Error - ", err);
+    console.log("Operational Error - ", err.message);
     return res
       .status(err.statusCode)
       .json({ success: false, message: err.message });
