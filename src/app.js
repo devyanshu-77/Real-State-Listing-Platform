@@ -1,13 +1,8 @@
 import express from "express";
 const app = express();
 import userRoutes from "./routes/auth.routes.js";
-
+import globalErrorHandler from "./middlewares/global.error.handler.js";
 app.use(express.json({ limit: "16kb" }));
-
 app.use("/api/user", userRoutes);
-
-app.use((req, res, next) => {
-  res.status(500).send("Internal server error");
-});
-
+app.use(globalErrorHandler);
 export default app;

@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import AppError from "../utils/appError.js";
 import userModel from "../models/user.model.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -9,25 +10,13 @@ async function registerController(req, res) {
   const existingUser = await userModel.findOne({
     $or: [{ username }, { email }],
   });
-  if (
-    existingUser &&
-    existingUser.email == email &&
-    existingUser.username == username
-  ) {
-    return res.status(409).json({
-      success: false,
-      message: "user already registered with this username and email",
-    });
-  } else if (existingUser && existingUser.email == email) {
-    return res.status(409).json({
-      success: false,
-      message: "Email already registered",
-    });
+  if (existingUser && existingUser.email == email) {
+    throw new AppError("The email is already registered. Log in instead?", 409);
   } else if (existingUser && existingUser.username == username) {
-    return res.status(409).json({
-      success: false,
-      message: "Username already taken",
-    });
+    throw new AppError(
+      "The username is already registered. Log in instead?",
+      409,
+    );
   }
   const saltRounds = Number(process.env.SALT_ROUNDS);
   const hashedPass = await bcrypt.hash(password, saltRounds);
@@ -55,6 +44,7 @@ async function registerController(req, res) {
     ],
   });
 }
+
 async function loginController(req, res) {
   const { username, email, password } = req.body;
   const user = await userModel.findOne({
@@ -65,22 +55,13 @@ async function loginController(req, res) {
     email: "Invalid email or password",
   };
   if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: username ? resMessage.username : resMessage.email,
-      errors: [],
-    });
+    throw new AppError(username ? resMessage.username : resMessage.email, 401);
   }
 
   const compareResult = await bcrypt.compare(password, user.password);
   if (!compareResult) {
-    return res.status(401).json({
-      success: false,
-      message: username ? resMessage.username : resMessage.email,
-      errors: [],
-    });
+    throw new AppError(username ? resMessage.username : resMessage.email, 401);
   }
-  console.log(result);
   const token = jwt.sign(
     {
       role: user.role,

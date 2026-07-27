@@ -8,8 +8,9 @@ import {
   registerController,
   loginController,
 } from "../controllers/auth.controller.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-router.post("/register", registerUserRules, registerController);
-router.post("/login", loginValidation, loginController);
+router.post("/register", registerUserRules, asyncHandler(registerController));
+router.post("/login", loginValidation, asyncHandler(loginController));
 
 export default router;
