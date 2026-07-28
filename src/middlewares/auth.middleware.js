@@ -16,6 +16,7 @@ async function authMiddleware(req, res, next) {
   if (decoded.role !== "property_owner") {
     throw new AppError("Unauthorized", 403);
   }
+  req.user = decoded.id;
   next();
 }
 

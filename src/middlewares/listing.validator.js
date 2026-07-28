@@ -62,8 +62,6 @@ const createListingValidation = [
     .optional()
     .isArray()
     .withMessage("amenities must be an array"),
-  body("photos").exists(),
   validateCreateListing,
 ];
-
 export { createListingValidation };
