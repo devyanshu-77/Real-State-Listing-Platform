@@ -3,6 +3,7 @@ import fs from "node:fs";
 import listingModel from "../models/listing.model.js";
 import uploadImage from "../services/cloudinary.js";
 import AppError from "../utils/appError.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
 async function createListing(req, res) {
   const {
@@ -40,9 +41,38 @@ async function createListing(req, res) {
   });
 
   fs.rmSync(`uploads/user-${req.user}`, { recursive: true });
-  res
-    .status(201)
-    .json({ success: true, message: "Created new listing", data: { listing } });
+  ApiResponse.success(res, "Created new listing", listing, 201);
+}
+async function updateListing(req, res) {
+  const listingId = req.params.listingId.trim();
+  const {
+    title,
+    description,
+    price,
+    location,
+    propertyType,
+    bedrooms,
+    bathrooms,
+    area,
+  } = req.body;
+  console.log(typeof req.body);
+  if (!listingId) {
+    throw new AppError("Listing id is required", 400);
+  }
+  await listingModel.findByIdAndUpdate(
+    { _id: listingId },
+    {
+      title,
+      description,
+      price,
+      location,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      area,
+    },
+  );
+  res.send("OK");
 }
 
-export { createListing };
+export { createListing, updateListing };

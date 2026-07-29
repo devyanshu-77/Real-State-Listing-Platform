@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import multer from "multer";
+import ApiResponse from "../utils/ApiResponse.js";
 
 function globalErrorHandler(err, req, res, next) {
   if (err instanceof multer.MulterError) {
@@ -8,38 +9,31 @@ function globalErrorHandler(err, req, res, next) {
     console.log("Folder deleted - ", folderPath);
     switch (err.code) {
       case "LIMIT_FILE_SIZE":
-        return res.status(400).json({
-          success: false,
-          message: "File is too large. Max size is 2mb per file",
-        });
+        return ApiResponse.error(
+          res,
+          "File is too large. Max size is 2mb per file",
+          null,
+          400,
+        );
       case "LIMIT_FILE_COUNT":
-        return res.status(400).json({
-          success: false,
-          message:
-            "File count exceeds allowed files user can uplod only 10 files",
-        });
+        return ApiResponse.error(
+          res,
+          "File count exceeds allowed files user can uplod only 10 files",
+          null,
+          400,
+        );
       case "LIMIT_UNEXPECTED_FILE":
-        return res.status(400).json({
-          success: false,
-          message: "Invalid file field name.",
-        });
+        return ApiResponse.error(res, "Invalid file field name.", null, 400);
       default:
-        return res
-          .status(400)
-          .json({ success: false, message: "File upload failed" });
+        return ApiResponse.error(res, "File upload failed", null, 400);
     }
   }
   if (err.isOperational) {
     console.log("Operational Error - ", err.message);
-    return res
-      .status(err.statusCode)
-      .json({ success: false, message: err.message });
+    return ApiResponse.error(res, err.message, null, err.statusCode);
   }
   console.log("Non operational Error - ", err);
-  res.status(500).json({
-    success: false,
-    message: "Internal server error",
-  });
+  ApiResponse.error(res, "Internal Server error", null, 500);
 }
 
 export default globalErrorHandler;

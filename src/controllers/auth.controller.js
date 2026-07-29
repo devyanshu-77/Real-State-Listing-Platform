@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import AppError from "../utils/appError.js";
 import userModel from "../models/user.model.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -30,19 +31,16 @@ async function registerController(req, res) {
   });
   const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET);
   res.cookie("token", token);
-  res.status(201).json({
-    success: true,
-    message: "Registered new user",
-    data: [
-      {
-        username: user.username,
-        email: user.email,
-        bio: user.bio,
-        phone: user.phone,
-        id: user._id,
-      },
-    ],
-  });
+
+  const data = {
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    bio: user.bio,
+    phone: user.phone,
+    id: user._id,
+  };
+  ApiResponse.success(res, "Registration successful!", data, 201);
 }
 
 async function loginController(req, res) {
@@ -70,18 +68,16 @@ async function loginController(req, res) {
     JWT_SECRET,
   );
   res.cookie("token", token);
-  res.status(200).json({
-    success: true,
-    message: "User login successfully",
-    data: [
-      {
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
-        id: user._id,
-      },
-    ],
-  });
+
+  const data = {
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    bio: user.bio,
+    phone: user.phone,
+    id: user._id,
+  };
+  ApiResponse.success(res, "Login successful", data, 200);
 }
 
 export { registerController, loginController };
