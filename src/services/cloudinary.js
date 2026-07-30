@@ -30,4 +30,21 @@ const uploadImage = async (subFolder, imagePath) => {
   }
 };
 
-export default uploadImage;
+const deleteImages = async (folderPath) => {
+  try {
+    const deleteResources = await cloudinary.api.delete_resources_by_prefix(
+      `${folderPath}/`,
+    );
+
+    const deleteFolderResult = await cloudinary.api.delete_folder(folderPath);
+
+    return deleteFolderResult;
+  } catch (error) {
+    if (error.error.http_code === 404) {
+      throw new AppError("Resource doesn't exist", 404);
+    }
+    throw new AppError("Error while deleting resource", 500);
+  }
+};
+
+export { uploadImage, deleteImages };

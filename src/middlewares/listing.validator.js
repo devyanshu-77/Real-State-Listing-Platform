@@ -68,17 +68,6 @@ const updateListingValidation = [
       min: 10,
       max: 100,
     })
-    .withMessage("Title length must be between 10 to 100 characters")
-    .custom((value, { req }) => {
-      if (
-        null === value ||
-        undefined === value ||
-        "" === value ||
-        (!value) instanceof String
-      ) {
-        throw new AppError("");
-      }
-    })
     .withMessage("Title length must be between 10 to 100 characters"),
   body("description")
     .optional()

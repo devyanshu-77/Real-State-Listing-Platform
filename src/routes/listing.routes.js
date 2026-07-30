@@ -9,6 +9,7 @@ import {
 import {
   createListing,
   updateListing,
+  deleteListing,
 } from "../controllers/listing.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 
@@ -26,5 +27,7 @@ router.patch(
   updateListingValidation,
   updateListing,
 );
+
+router.delete("/listing/:listingId", propertyOwnerAuth, deleteListing);
 
 export default router;
