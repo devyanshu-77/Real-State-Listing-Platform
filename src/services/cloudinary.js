@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+
 import AppError from "../utils/appError.js";
 
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
@@ -12,39 +13,42 @@ cloudinary.config({
   secure: true,
 });
 
-const uploadImage = async (subFolder, imagePath) => {
+const uploadImage = async (imagePath) => {
   const options = {
     resource_type: "image",
-    folder: `realstate/${subFolder}`,
-    use_filename: true,
-    unique_filename: false,
-    overwrite: true,
+    use_filename: false,
+    unique_filename: true,
   };
 
   try {
     const result = await cloudinary.uploader.upload(imagePath, options);
-    return result.secure_url;
+    return {
+      url: result.secure_url,
+      publicId: result.public_id,
+    };
   } catch (error) {
     console.log("Cloudinary error ", error);
     throw new AppError("Coudn't upload photos try again", 500);
   }
 };
 
-const deleteImages = async (folderPath) => {
+const deleteImages = async (imageIds) => {
   try {
-    const deleteResources = await cloudinary.api.delete_resources_by_prefix(
-      `${folderPath}/`,
-    );
-
-    const deleteFolderResult = await cloudinary.api.delete_folder(folderPath);
-
-    return deleteFolderResult;
+    await cloudinary.api.delete_resources(imageIds);
   } catch (error) {
-    if (error.error.http_code === 404) {
-      throw new AppError("Resource doesn't exist", 404);
-    }
     throw new AppError("Error while deleting resource", 500);
   }
 };
+const listAssets = async (path) => {
+  const assets = await cloudinary.api.resources({
+    type: "upload",
+    prefix: `realstate/user-${path}`,
+  });
+  return assets;
+};
+const deleteOneImage = async (publicId) => {
+  const response = await cloudinary.uploader.destroy(publicId);
+  return response;
+};
 
-export { uploadImage, deleteImages };
+export { uploadImage, deleteImages, listAssets, deleteOneImage };

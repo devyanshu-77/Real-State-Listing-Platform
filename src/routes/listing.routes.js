@@ -10,6 +10,7 @@ import {
   createListing,
   updateListing,
   deleteListing,
+  deleteListingImage,
 } from "../controllers/listing.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 
@@ -29,5 +30,10 @@ router.patch(
 );
 
 router.delete("/listing/:listingId", propertyOwnerAuth, deleteListing);
+router.delete(
+  "/image/:listingId/:publicId",
+  propertyOwnerAuth,
+  deleteListingImage,
+);
 
 export default router;

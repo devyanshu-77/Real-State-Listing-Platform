@@ -1,7 +1,12 @@
 import fs from "node:fs";
 
 import listingModel from "../models/listing.model.js";
-import { deleteImages, uploadImage } from "../services/cloudinary.js";
+import {
+  deleteImages,
+  uploadImage,
+  listAssets,
+  deleteOneImage,
+} from "../services/cloudinary.js";
 import AppError from "../utils/appError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -23,7 +28,7 @@ async function createListing(req, res) {
   }
   const imageUrls = [];
   for (let i = 0; i < files.length; i++) {
-    const result = await uploadImage(`user-${req.user}`, files[i].path);
+    const result = await uploadImage(files[i].path);
     imageUrls.push(result);
   }
 
@@ -72,10 +77,55 @@ async function deleteListing(req, res) {
     throw new AppError("Listing id is required", 401);
   }
 
-  await listingModel.findByIdAndDelete(listingId);
-  const path = `realstate/user-${req.user}`;
-  await deleteImages(path);
-  res.send("OK");
+  const listing = await listingModel.findOneAndDelete({
+    _id: listingId,
+    propertyOwner: req.user,
+  });
+  if (!listing) {
+    throw new AppError("Listing doesn't exist", 404);
+  }
+  const imageIds = listing.photos.map((l) => l.publicId);
+  await deleteImages(imageIds);
+  ApiResponse.success(res, "Listing deleted successfully", null, 200);
+}
+async function deleteListingImage(req, res) {
+  try {
+    const { listingId, publicId } = req.params;
+    console.log("Listing Id ", listingId);
+    const listing = await listingModel.findOne({
+      _id: listingId,
+      propertyOwner: req.user,
+    });
+
+    if (!listing) {
+      return ApiResponse.error(
+        res,
+        "Invalid id listing does not exist!",
+        null,
+        400,
+      );
+    }
+    if (2 >= listing.photos.length) {
+      return AppError(
+        res,
+        "Please add photos before deleting existing one",
+        null,
+        401,
+      );
+    }
+    await deleteOneImage(publicId);
+    const updates = listing.photos.filter((l) => l.publicId !== publicId);
+    await listingModel.findOneAndUpdate(
+      { _id: listingId },
+      {
+        photos: updates,
+      },
+    );
+    ApiResponse.success(res, "Deleted image from listing", 200);
+  } catch (err) {
+    console.log("Listing image deletion failed ", err);
+    throw new Error("Something went wrong while deleting listing image");
+  }
 }
 
-export { createListing, updateListing, deleteListing };
+export { createListing, updateListing, deleteListing, deleteListingImage };

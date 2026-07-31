@@ -43,7 +43,7 @@ const registerUserRules = [
 ];
 
 function loginValidator(req, res, next) {
-  const error = validationResult(req.body);
+  const error = validationResult(req);
   if (error.isEmpty()) {
     return next();
   }

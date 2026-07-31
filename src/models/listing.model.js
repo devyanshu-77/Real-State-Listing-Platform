@@ -45,7 +45,12 @@ const listingSchema = new mongoose.Schema({
     type: [String],
   },
   photos: {
-    type: [String],
+    type: [
+      {
+        url: String,
+        publicId: String,
+      },
+    ],
     required: true,
   },
   propertyOwner: {
