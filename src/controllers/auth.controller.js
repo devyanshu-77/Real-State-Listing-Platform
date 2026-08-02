@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import AppError from "../utils/appError.js";
 import userModel from "../models/user.model.js";
+import listingModel from "../models/listing.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -96,7 +97,6 @@ async function updateUser(req, res) {
     updates,
     { returnDocument: "after" },
   );
-  console.log("Updated user ", updatedUser);
   if (!updateUser) {
     return ApiResponse.error(res, "User does not exist", null, 404);
   }
@@ -116,5 +116,16 @@ async function logoutController(req, res) {
   res.clearCookie("token");
   ApiResponse.success(res, "User logged out successfully", null, 200);
 }
+async function deleteUser(req, res) {
+  await userModel.findByIdAndDelete(req.user);
+  await listingModel.deleteMany({ propertyOwner: req.user });
+  ApiResponse.success(res, "User delete successfully", null, 200);
+}
 
-export { registerController, loginController, logoutController, updateUser };
+export {
+  registerController,
+  loginController,
+  logoutController,
+  updateUser,
+  deleteUser,
+};
