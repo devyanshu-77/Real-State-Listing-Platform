@@ -53,7 +53,7 @@ async function updateListing(req, res) {
   const listingId = req.params.listingId.trim();
   const updates = {};
   for (const key in req.body) {
-    if (!updates[key]) {
+    if (!updates[key] && req.body[key]) {
       updates[key] = req.body[key];
     }
   }

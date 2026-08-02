@@ -78,9 +78,43 @@ async function loginController(req, res) {
   };
   ApiResponse.success(res, "Login successful", data, 200);
 }
+async function updateUser(req, res) {
+  const updates = {};
+  for (const key in req.body) {
+    if (!updates[key] && req.body[key]) {
+      if (key == "password") {
+        const saltRounds = Number(process.env.SALT_ROUNDS);
+        const hashedPass = await bcrypt.hash(req.body[key], saltRounds);
+        updates[key] = hashedPass;
+        continue;
+      }
+      updates[key] = req.body[key];
+    }
+  }
+  const updatedUser = await userModel.findOneAndUpdate(
+    { _id: req.user },
+    updates,
+    { returnDocument: "after" },
+  );
+  console.log("Updated user ", updatedUser);
+  if (!updateUser) {
+    return ApiResponse.error(res, "User does not exist", null, 404);
+  }
+  ApiResponse.success(
+    res,
+    "Updated user successfully",
+    {
+      id: updatedUser._id,
+      role: updatedUser.role,
+      email: updatedUser.email,
+      username: updatedUser.username,
+    },
+    200,
+  );
+}
 async function logoutController(req, res) {
   res.clearCookie("token");
   ApiResponse.success(res, "User logged out successfully", null, 200);
 }
 
-export { registerController, loginController, logoutController };
+export { registerController, loginController, logoutController, updateUser };
