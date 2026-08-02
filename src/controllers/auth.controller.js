@@ -121,6 +121,24 @@ async function deleteUser(req, res) {
   await listingModel.deleteMany({ propertyOwner: req.user });
   ApiResponse.success(res, "User delete successfully", null, 200);
 }
+async function getUser(req, res) {
+  const user = await userModel.findById(req.user);
+  if (!user) {
+    res.clearCookie("token");
+    return ApiResponse.error(res, "User does not exist", null, 400);
+  }
+  ApiResponse.success(
+    res,
+    "Found user",
+    {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    200,
+  );
+}
 
 export {
   registerController,
@@ -128,4 +146,5 @@ export {
   logoutController,
   updateUser,
   deleteUser,
+  getUser,
 };
