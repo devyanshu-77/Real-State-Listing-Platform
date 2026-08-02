@@ -9,6 +9,7 @@ import {
 } from "../services/cloudinary.js";
 import AppError from "../utils/appError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import upload from "../middlewares/multer.middleware.js";
 
 async function createListing(req, res) {
   const {
@@ -91,7 +92,6 @@ async function deleteListing(req, res) {
 async function deleteListingImage(req, res) {
   try {
     const { listingId, publicId } = req.params;
-    console.log("Listing Id ", listingId);
     const listing = await listingModel.findOne({
       _id: listingId,
       propertyOwner: req.user,
@@ -127,5 +127,51 @@ async function deleteListingImage(req, res) {
     throw new Error("Something went wrong while deleting listing image");
   }
 }
+async function addListingImage(req, res) {
+  const listingId = req.params.listingId;
+  const files = req.files;
+  if (0 === files.length) {
+    return ApiResponse.error(res, "Please send images to add", null, 400);
+  }
+  const listing = await listingModel.findOne({
+    _id: listingId,
+    propertyOwner: req.user,
+  });
+  if (!listing) {
+    return ApiResponse.success(res, "No listing exist with such id", null, 400);
+  }
 
-export { createListing, updateListing, deleteListing, deleteListingImage };
+  if (10 < files.length + listing.photos.length) {
+    const removeCount = 10 - files.length;
+    return ApiResponse.error(
+      res,
+      `You can add only 10 images remove ${removeCount}`,
+      null,
+      400,
+    );
+  }
+
+  const images = [];
+  for (let i = 0; i < files.length; i++) {
+    const result = await uploadImage(files[i].path);
+    images.push({ url: result.secure_url, publicId: result.publicId });
+  }
+  const photos = listing.photos;
+  const updatedPhotos = [...photos, ...images];
+  const updatedListing = await listingModel.findOne(
+    { _id: listingId },
+    {
+      photos: updatedPhotos,
+    },
+  );
+
+  res.send(updatedListing);
+}
+
+export {
+  createListing,
+  updateListing,
+  deleteListing,
+  deleteListingImage,
+  addListingImage,
+};
