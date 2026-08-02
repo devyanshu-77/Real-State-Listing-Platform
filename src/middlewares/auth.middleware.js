@@ -15,7 +15,7 @@ async function propertyOwnerAuth(req, res, next) {
   const decoded = jwt.verify(token, JWT_SECRET);
   if (decoded.role !== "property_owner") {
     throw new AppError(
-      "Unauthorized only property owners can create listings",
+      "Unauthorized only property owners have access to listings",
       403,
     );
   }

@@ -12,6 +12,7 @@ import {
   deleteListing,
   deleteListingImage,
   addListingImage,
+  getAllListings,
 } from "../controllers/listing.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 
@@ -41,5 +42,7 @@ router.post(
   upload.array("photos"),
   addListingImage,
 );
+
+router.get("/listings", propertyOwnerAuth, getAllListings);
 
 export default router;

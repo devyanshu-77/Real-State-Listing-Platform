@@ -1,15 +1,14 @@
 import fs from "node:fs";
 
 import listingModel from "../models/listing.model.js";
+import userModel from "../models/user.model.js";
 import {
   deleteImages,
   uploadImage,
-  listAssets,
   deleteOneImage,
 } from "../services/cloudinary.js";
 import AppError from "../utils/appError.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import upload from "../middlewares/multer.middleware.js";
 
 async function createListing(req, res) {
   const {
@@ -167,6 +166,16 @@ async function addListingImage(req, res) {
 
   res.send(updatedListing);
 }
+async function getAllListings(req, res) {
+  const user = await userModel.findById(req.user);
+  if (!user) {
+    res.clearCookie("token");
+    return ApiResponse.error(res, "Unauthorized", null, 400);
+  }
+
+  const listings = await listingModel.find({ propertyOwner: user._id });
+  ApiResponse.success(res, "Fetched all listings", { listings }, 200);
+}
 
 export {
   createListing,
@@ -174,4 +183,5 @@ export {
   deleteListing,
   deleteListingImage,
   addListingImage,
+  getAllListings,
 };
