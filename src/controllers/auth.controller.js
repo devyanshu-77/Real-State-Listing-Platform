@@ -42,7 +42,6 @@ async function registerController(req, res) {
   };
   ApiResponse.success(res, "Registration successful!", data, 201);
 }
-
 async function loginController(req, res) {
   const { username, email, password } = req.body;
   const user = await userModel.findOne({
@@ -79,5 +78,9 @@ async function loginController(req, res) {
   };
   ApiResponse.success(res, "Login successful", data, 200);
 }
+async function logoutController(req, res) {
+  res.clearCookie("token");
+  ApiResponse.success(res, "User logged out successfully", null, 200);
+}
 
-export { registerController, loginController };
+export { registerController, loginController, logoutController };
