@@ -69,5 +69,38 @@ async function deleteListing(req, res) {
     200,
   );
 }
+async function changeListingStatus(req, res) {
+  if ("admin" !== req.user.role) {
+    return ApiResponse.error(
+      res,
+      "Unauthorized only admins and property owners can delte listings",
+      null,
+      400,
+    );
+  }
+  const listingId = req.params.listingId;
+  if (!listingId) {
+    return ApiResponse.error(res, "Listing id is required", null, 400);
+  }
+  const { status } = req.body;
+  const updatedListing = await listingModel
+    .findOneAndUpdate(
+      { _id: listingId },
+      {
+        status: status,
+      },
+      { returnDocument: "after" },
+    )
+    .lean();
+  if (!updatedListing) {
+    return ApiResponse.error(res, "No listind exists with given id", null, 404);
+  }
+  ApiResponse.success(
+    res,
+    "Updated listing status",
+    { ...updatedListing },
+    200,
+  );
+}
 
-export { registerAdmin, deleteListing };
+export { registerAdmin, deleteListing, changeListingStatus };

@@ -1,11 +1,13 @@
 import { Router } from "express";
+const router = Router();
+
 import { registerAdminValidation } from "../middlewares/admin.validator.js";
 import {
-  getAllListings,
+  changeListingStatus,
   registerAdmin,
 } from "../controllers/admin.controller.js";
 import { userAuth } from "../middlewares/auth.middleware.js";
-const router = Router();
+import { changeStatusValidation } from "../middlewares/admin.validator.js";
 
 router.post("/register", userAuth, registerAdminValidation, registerAdmin);
 router.delete(
@@ -14,6 +16,11 @@ router.delete(
   registerAdminValidation,
   registerAdmin,
 );
-router.get("/listings", userAuth, getAllListings);
+router.patch(
+  "/status/:listingId",
+  userAuth,
+  changeStatusValidation,
+  changeListingStatus,
+);
 
 export default router;

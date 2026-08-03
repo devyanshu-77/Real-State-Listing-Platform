@@ -28,6 +28,7 @@ async function createListing(req, res) {
     bedrooms,
     bathrooms,
     area,
+    status,
   } = req.body;
 
   const files = req.files;
@@ -137,7 +138,7 @@ async function deleteListingImage(req, res) {
       );
     }
     if (2 >= listing.photos.length) {
-      return AppError(
+      return ApiResponse.error(
         res,
         "Please add photos before deleting existing one",
         null,
@@ -152,7 +153,7 @@ async function deleteListingImage(req, res) {
         photos: updates,
       },
     );
-    ApiResponse.success(res, "Deleted image from listing", 200);
+    ApiResponse.success(res, "Deleted image from listing", null, 200);
   } catch (err) {
     console.log("Listing image deletion failed ", err);
     throw new Error("Something went wrong while deleting listing image");
@@ -197,14 +198,19 @@ async function addListingImage(req, res) {
   }
   const photos = listing.photos;
   const updatedPhotos = [...photos, ...images];
-  const updatedListing = await listingModel.findOne(
+  const updatedListing = await listingModel.findOneAndUpdate(
     { _id: listingId },
     {
       photos: updatedPhotos,
     },
   );
 
-  res.send(updatedListing);
+  ApiResponse.success(
+    res,
+    "Photos updated successfully",
+    { ...updatedListing },
+    200,
+  );
 }
 async function getOwnerAllListings(req, res) {
   if (req.user.role !== "property_owner") {
@@ -230,7 +236,7 @@ async function getOwnerAllListings(req, res) {
 }
 async function getAllListing(req, res) {
   const { page = 1, limit = 10 } = req.query;
-  const listings = listingModel
+  const listings = await listingModel
     .find({})
     .limit(limit * 1)
     .skip((page - 1) * limit);

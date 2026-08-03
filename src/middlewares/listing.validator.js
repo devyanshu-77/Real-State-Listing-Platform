@@ -15,6 +15,8 @@ function validateData(req, res, next) {
   });
   ApiResponse.error(res, "Validation error", formatedErrors, 400);
 }
+
+const propertyStatus = ["active", "inactive", "sold", "rented"];
 const createListingValidation = [
   body("title")
     .exists()
@@ -24,6 +26,11 @@ const createListingValidation = [
       max: 100,
     })
     .withMessage("Title length must be between 10 to 100 characters"),
+  body("status")
+    .exists()
+    .withMessage("Property status is required")
+    .isIn(propertyStatus)
+    .withMessage("Property staus can be - active, inactive, sold, rented"),
   body("description")
     .exists()
     .withMessage("Description is required")
@@ -76,6 +83,11 @@ const updateListingValidation = [
       max: 5000,
     })
     .withMessage("Description length must be between 100 to 5000 characters"),
+  body("status")
+    .exists()
+    .withMessage("Property status is required")
+    .isIn(propertyStatus)
+    .withMessage("Property staus can be - active, inactive, sold, rented"),
   body("price").optional().isNumeric().withMessage("Price must be a number"),
   body("location.city").optional(),
   body("location.address").optional(),

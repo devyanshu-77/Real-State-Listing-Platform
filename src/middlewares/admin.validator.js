@@ -1,5 +1,6 @@
 import { body, validationResult } from "express-validator";
 import ApiResponse from "../utils/ApiResponse.js";
+import listingModel from "../models/listing.model.js";
 
 function validateData(req, res, next) {
   const results = validationResult(req);
@@ -14,6 +15,7 @@ function validateData(req, res, next) {
   });
   ApiResponse.error(res, "Validation error", formattedErrors, 400);
 }
+const listingStatus = ["active", "inactive", "sold", "rented"];
 const registerAdminValidation = [
   body("username")
     .exists()
@@ -43,5 +45,12 @@ const registerAdminValidation = [
     .withMessage("only admins have access to this resource"),
   validateData,
 ];
+const changeStatusValidation = [
+  body("status")
+    .exists("Provide status")
+    .isIn(listingStatus)
+    .withMessage("Listing status can only be - active, inactive, sold, rented"),
+  validateData,
+];
 
-export { registerAdminValidation };
+export { registerAdminValidation, changeStatusValidation };
