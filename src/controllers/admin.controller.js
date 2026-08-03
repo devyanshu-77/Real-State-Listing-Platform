@@ -69,22 +69,5 @@ async function deleteListing(req, res) {
     200,
   );
 }
-async function getAllListings(req, res) {
-  if ("admin" !== req.user.role) {
-    return ApiResponse.error(
-      res,
-      "Unauthorized only admins have access",
-      null,
-      400,
-    );
-  }
-  const { page = 1, limit = 10 } = req.query;
-  const allListings = await listingModel
-    .find({})
-    .limit(limit * 1)
-    .skip((page - 1) * 1);
 
-  ApiResponse.success(res, "Fetched all listings", { ...allListings }, 200);
-}
-
-export { registerAdmin, deleteListing, getAllListings };
+export { registerAdmin, deleteListing };

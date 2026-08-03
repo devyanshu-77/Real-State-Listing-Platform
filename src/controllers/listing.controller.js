@@ -206,7 +206,7 @@ async function addListingImage(req, res) {
 
   res.send(updatedListing);
 }
-async function getAllListings(req, res) {
+async function getOwnerAllListings(req, res) {
   if (req.user.role !== "property_owner") {
     return ApiResponse.error(
       res,
@@ -220,9 +220,21 @@ async function getAllListings(req, res) {
     res.clearCookie("token");
     return ApiResponse.error(res, "Unauthorized", null, 400);
   }
+  const { page = 1, limit = 10 } = req.query;
 
-  const listings = await listingModel.find({ propertyOwner: user._id });
+  const listings = await listingModel
+    .find({ propertyOwner: user._id })
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
   ApiResponse.success(res, "Fetched all listings", { listings }, 200);
+}
+async function getAllListing(req, res) {
+  const { page = 1, limit = 10 } = req.query;
+  const listings = listingModel
+    .find({})
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+  ApiResponse.success(res, "Fetched all listings", { ...listings }, 200);
 }
 
 export {
@@ -231,5 +243,6 @@ export {
   deleteListing,
   deleteListingImage,
   addListingImage,
-  getAllListings,
+  getOwnerAllListings,
+  getAllListing,
 };
