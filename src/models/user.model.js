@@ -12,12 +12,16 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
+    required: function () {
+      return !["admin"].includes(this.role);
+    },
     unique: true,
   },
   bio: {
     type: String,
-    required: true,
+    required: function () {
+      return !["admin"].includes(this.role);
+    },
   },
   password: {
     type: String,

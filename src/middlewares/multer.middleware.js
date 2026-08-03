@@ -4,12 +4,12 @@ import AppError from "../utils/appError.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const folderPath = `uploads/user-${req.user}`;
+    const folderPath = `uploads/user-${req.user.id}`;
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath);
       console.log("Created folder - ", folderPath);
     }
-    cb(null, `uploads/user-${req.user}`);
+    cb(null, `uploads/user-${req.user.id}`);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

@@ -93,7 +93,7 @@ async function updateUser(req, res) {
     }
   }
   const updatedUser = await userModel.findOneAndUpdate(
-    { _id: req.user },
+    { _id: req.user.id },
     updates,
     { returnDocument: "after" },
   );
@@ -117,12 +117,12 @@ async function logoutController(req, res) {
   ApiResponse.success(res, "User logged out successfully", null, 200);
 }
 async function deleteUser(req, res) {
-  await userModel.findByIdAndDelete(req.user);
-  await listingModel.deleteMany({ propertyOwner: req.user });
+  await userModel.findByIdAndDelete(req.user.id);
+  await listingModel.deleteMany({ propertyOwner: req.user.id });
   ApiResponse.success(res, "User delete successfully", null, 200);
 }
 async function getUser(req, res) {
-  const user = await userModel.findById(req.user);
+  const user = await userModel.findById(req.user.id);
   if (!user) {
     res.clearCookie("token");
     return ApiResponse.error(res, "User does not exist", null, 400);

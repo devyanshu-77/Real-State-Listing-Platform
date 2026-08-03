@@ -4,7 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 
 function globalErrorHandler(err, req, res, next) {
   if (err instanceof multer.MulterError) {
-    const folderPath = `uploads/user-${req.user}`;
+    const folderPath = `uploads/user-${req.user.id}`;
     fs.rmSync(folderPath, { recursive: true });
     console.log("Folder deleted - ", folderPath);
     switch (err.code) {

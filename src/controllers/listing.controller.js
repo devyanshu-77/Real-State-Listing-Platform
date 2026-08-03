@@ -11,6 +11,14 @@ import AppError from "../utils/appError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
 async function createListing(req, res) {
+  if (req.user.role !== "property_owner") {
+    return ApiResponse.error(
+      res,
+      "Only property owner can create listings",
+      null,
+      400,
+    );
+  }
   const {
     title,
     description,
@@ -41,14 +49,22 @@ async function createListing(req, res) {
     bathrooms,
     location,
     area,
-    propertyOwner: req.user,
+    propertyOwner: req.user.id,
     photos: imageUrls,
   });
 
-  fs.rmSync(`uploads/user-${req.user}`, { recursive: true });
+  fs.rmSync(`uploads/user-${req.user.id}`, { recursive: true });
   ApiResponse.success(res, "Created new listing", listing, 201);
 }
 async function updateListing(req, res) {
+  if (req.user.role !== "property_owner") {
+    return ApiResponse.error(
+      res,
+      "Only property owner can update a listing",
+      null,
+      400,
+    );
+  }
   const listingId = req.params.listingId.trim();
   const updates = {};
   for (const key in req.body) {
@@ -72,6 +88,14 @@ async function updateListing(req, res) {
   ApiResponse.success(res, "Updated listing", updatedListing, 200);
 }
 async function deleteListing(req, res) {
+  if (req.user.role !== "property_owner") {
+    return ApiResponse.error(
+      res,
+      "Only property owner can delete a listing",
+      null,
+      400,
+    );
+  }
   const listingId = req.params.listingId;
   if (!listingId) {
     throw new AppError("Listing id is required", 401);
@@ -79,7 +103,7 @@ async function deleteListing(req, res) {
 
   const listing = await listingModel.findOneAndDelete({
     _id: listingId,
-    propertyOwner: req.user,
+    propertyOwner: req.user.id,
   });
   if (!listing) {
     throw new AppError("Listing doesn't exist", 404);
@@ -89,11 +113,19 @@ async function deleteListing(req, res) {
   ApiResponse.success(res, "Listing deleted successfully", null, 200);
 }
 async function deleteListingImage(req, res) {
+  if (req.user.role !== "property_owner") {
+    return ApiResponse.error(
+      res,
+      "Only property owner can delete a listing",
+      null,
+      400,
+    );
+  }
   try {
     const { listingId, publicId } = req.params;
     const listing = await listingModel.findOne({
       _id: listingId,
-      propertyOwner: req.user,
+      propertyOwner: req.user.id,
     });
 
     if (!listing) {
@@ -127,6 +159,14 @@ async function deleteListingImage(req, res) {
   }
 }
 async function addListingImage(req, res) {
+  if (req.user.role !== "property_owner") {
+    return ApiResponse.error(
+      res,
+      "Only property owner can delete a listing",
+      null,
+      400,
+    );
+  }
   const listingId = req.params.listingId;
   const files = req.files;
   if (0 === files.length) {
@@ -134,7 +174,7 @@ async function addListingImage(req, res) {
   }
   const listing = await listingModel.findOne({
     _id: listingId,
-    propertyOwner: req.user,
+    propertyOwner: req.user.id,
   });
   if (!listing) {
     return ApiResponse.success(res, "No listing exist with such id", null, 400);
@@ -167,7 +207,15 @@ async function addListingImage(req, res) {
   res.send(updatedListing);
 }
 async function getAllListings(req, res) {
-  const user = await userModel.findById(req.user);
+  if (req.user.role !== "property_owner") {
+    return ApiResponse.error(
+      res,
+      "Only property owner can delete a listing",
+      null,
+      400,
+    );
+  }
+  const user = await userModel.findById(req.user.id);
   if (!user) {
     res.clearCookie("token");
     return ApiResponse.error(res, "Unauthorized", null, 400);

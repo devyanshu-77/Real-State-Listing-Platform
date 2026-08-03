@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { propertyOwnerAuth } from "../middlewares/auth.middleware.js";
+import { userAuth } from "../middlewares/auth.middleware.js";
 import {
   createListingValidation,
   updateListingValidation,
@@ -18,31 +18,27 @@ import upload from "../middlewares/multer.middleware.js";
 
 router.post(
   "/listing",
-  propertyOwnerAuth,
+  userAuth,
   upload.array("photos"),
   createListingValidation,
   createListing,
 );
 router.patch(
   "/listing/:listingId",
-  propertyOwnerAuth,
+  userAuth,
   updateListingValidation,
   updateListing,
 );
-router.delete("/listing/:listingId", propertyOwnerAuth, deleteListing);
-router.delete(
-  "/image/:listingId/:publicId",
-  propertyOwnerAuth,
-  deleteListingImage,
-);
+router.delete("/listing/:listingId", userAuth, deleteListing);
+router.delete("/image/:listingId/:publicId", userAuth, deleteListingImage);
 
 router.post(
   "/image/:listingId",
-  propertyOwnerAuth,
+  userAuth,
   upload.array("photos"),
   addListingImage,
 );
 
-router.get("/listings", propertyOwnerAuth, getAllListings);
+router.get("/listings", userAuth, getAllListings);
 
 export default router;
