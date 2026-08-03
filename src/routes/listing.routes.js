@@ -4,6 +4,7 @@ const router = Router();
 import { userAuth } from "../middlewares/auth.middleware.js";
 import {
   createListingValidation,
+  searchListingValidation,
   updateListingValidation,
 } from "../middlewares/listing.validator.js";
 import {
@@ -14,9 +15,9 @@ import {
   addListingImage,
   getOwnerAllListings,
   getAllListing,
+  searchListings,
 } from "../controllers/listing.controller.js";
 import upload from "../middlewares/multer.middleware.js";
-import { changeStatusValidation } from "../middlewares/admin.validator.js";
 
 router.post(
   "/listing",
@@ -43,5 +44,6 @@ router.post(
 
 router.get("/owners/listings", userAuth, getOwnerAllListings);
 router.get("/listings", getAllListing);
+router.get("/search", searchListingValidation, searchListings);
 
 export default router;

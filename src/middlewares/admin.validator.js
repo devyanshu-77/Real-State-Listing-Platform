@@ -1,6 +1,5 @@
 import { body, validationResult } from "express-validator";
 import ApiResponse from "../utils/ApiResponse.js";
-import listingModel from "../models/listing.model.js";
 
 function validateData(req, res, next) {
   const results = validationResult(req);

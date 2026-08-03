@@ -16,6 +16,15 @@ function validateData(req, res, next) {
   ApiResponse.error(res, "Validation error", formatedErrors, 400);
 }
 
+const propertyTypes = [
+  "flat",
+  "apartment",
+  "house",
+  "villa",
+  "penthouse",
+  "duplex",
+  "triplex",
+];
 const propertyStatus = ["active", "inactive", "sold", "rented"];
 const createListingValidation = [
   body("title")
@@ -39,6 +48,13 @@ const createListingValidation = [
       max: 5000,
     })
     .withMessage("Description length must be between 100 to 5000 characters"),
+  body("propertyType")
+    .exists()
+    .withMessage("Property type is required")
+    .isIn(propertyTypes)
+    .withMessage(
+      "Property type can be flat apartment house villa penthouse duplex triplex",
+    ),
   body("price")
     .exists()
     .withMessage("Price is required")
@@ -92,6 +108,10 @@ const updateListingValidation = [
   body("location.city").optional(),
   body("location.address").optional(),
   body("propertyType").optional(),
+  body("propertyType")
+    .exists()
+    .withMessage("Property type is required")
+    .isIn(propertyTypes),
   body("bedrooms")
     .optional()
     .isNumeric()
@@ -107,5 +127,35 @@ const updateListingValidation = [
     .withMessage("amenities must be an array"),
   validateData,
 ];
+const searchListingValidation = [
+  body("minPrice")
+    .optional()
+    .isNumeric()
+    .withMessage("Min price must be a number"),
+  body("maxPrice")
+    .optional()
+    .isNumeric()
+    .withMessage("Min price must be a number"),
+  body("location")
+    .optional()
+    .custom((value) => {
+      if (typeof value !== "string" || "" === value.trim()) {
+        return false;
+      }
+      return true;
+    })
+    .withMessage("location must be a string"),
+  body("propertyType")
+    .optional()
+    .isIn(propertyTypes)
+    .withMessage(
+      "Property type can be flat apartment house villa penthouse duplex triplex",
+    ),
+  validateData,
+];
 
-export { createListingValidation, updateListingValidation };
+export {
+  createListingValidation,
+  updateListingValidation,
+  searchListingValidation,
+};

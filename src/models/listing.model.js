@@ -32,6 +32,15 @@ const listingSchema = new mongoose.Schema({
   },
   propertyType: {
     type: String,
+    enum: [
+      "flat",
+      "apartment",
+      "house",
+      "villa",
+      "penthouse",
+      "duplex",
+      "triplex",
+    ],
     required: true,
   },
   bedrooms: {

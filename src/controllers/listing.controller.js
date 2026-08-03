@@ -242,6 +242,35 @@ async function getAllListing(req, res) {
     .skip((page - 1) * limit);
   ApiResponse.success(res, "Fetched all listings", { ...listings }, 200);
 }
+async function searchListings(req, res) {
+  const { page = 1, limit = 10 } = req.query;
+  const filters = {};
+  for (const key in req.body) {
+    if (!filters[key] && req.body[key]) {
+      if (key === "location") {
+        filters["location.city"] = req.body[key];
+        continue;
+      }
+      filters[key] = req.body[key];
+    }
+  }
+
+  const listings = await listingModel
+    .find(filters)
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  if (!listings) {
+    return ApiResponse.error(
+      res,
+      "No listing found with given filters",
+      null,
+      404,
+    );
+  }
+
+  ApiResponse.success(res, "Fetched listings", { ...listings }, 200);
+}
 
 export {
   createListing,
@@ -251,4 +280,5 @@ export {
   addListingImage,
   getOwnerAllListings,
   getAllListing,
+  searchListings,
 };
