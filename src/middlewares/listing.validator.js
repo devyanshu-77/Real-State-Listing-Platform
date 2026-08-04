@@ -1,3 +1,5 @@
+import fs from "node:fs";
+
 import { body, validationResult } from "express-validator";
 import AppError from "../utils/appError.js";
 import ApiResponse from "../utils/ApiResponse.js";
@@ -51,7 +53,15 @@ const createListingValidation = [
   body("propertyType")
     .exists()
     .withMessage("Property type is required")
-    .isIn(propertyTypes)
+    .isString()
+    .withMessage("Property type must be a strin")
+    .custom((value, { req }) => {
+      if (!propertyTypes.includes(value.toLowerCase())) {
+        fs.rmSync(`uploads/user-${req.user.id}`);
+        return false;
+      }
+      return true;
+    })
     .withMessage(
       "Property type can be flat apartment house villa penthouse duplex triplex",
     ),
@@ -145,6 +155,21 @@ const searchListingValidation = [
       return true;
     })
     .withMessage("location must be a string"),
+  body("propertyType")
+    .exists()
+    .withMessage("Property type is required")
+    .isString()
+    .withMessage("Property type must be a strin")
+    .custom((value, { req }) => {
+      if (!propertyTypes.includes(value.toLowerCase())) {
+        fs.rmSync(`uploads/user-${req.user.id}`);
+        return false;
+      }
+      return true;
+    })
+    .withMessage(
+      "Property type can be flat apartment house villa penthouse duplex triplex",
+    ),
   body("propertyType")
     .optional()
     .isIn(propertyTypes)

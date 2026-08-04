@@ -30,7 +30,9 @@ async function registerController(req, res) {
     bio,
     phone,
   });
-  const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {expiresIn: "15days"});
+  const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+    expiresIn: "15days",
+  });
   res.cookie("token", token);
 
   const data = {
@@ -66,7 +68,7 @@ async function loginController(req, res) {
       id: user._id,
     },
     JWT_SECRET,
-        {expiresIn: "15days"}
+    { expiresIn: "15days" },
   );
   res.cookie("token", token);
 

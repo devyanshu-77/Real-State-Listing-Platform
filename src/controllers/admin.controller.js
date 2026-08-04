@@ -61,7 +61,7 @@ async function deleteListing(req, res) {
     return ApiResponse.error(res, "Please provide a listing id", null, 400);
   }
 
-  const deletedListing = await listingModel.findByIdAndDelete(req.user.id);
+  const deletedListing = await listingModel.findByIdAndDelete(listingId);
   ApiResponse.success(
     res,
     "Deleted listing successfully",

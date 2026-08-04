@@ -1,78 +1,81 @@
 import mongoose from "mongoose";
 
-const listingSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    minlength: [10, "Title must contain 10 characters"],
-    maxlength: [100, "Title must not exceed 100 characters"],
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["active", "sold", "rented", "inactive"],
-    default: "active",
-  },
-  location: {
-    city: {
+const listingSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      minlength: [10, "Title must contain 10 characters"],
+      maxlength: [100, "Title must not exceed 100 characters"],
+    },
+    description: {
       type: String,
       required: true,
     },
-    address: {
-      type: String,
+    price: {
+      type: Number,
       required: true,
     },
-  },
-  propertyType: {
-    type: String,
-    enum: [
-      "flat",
-      "apartment",
-      "house",
-      "villa",
-      "penthouse",
-      "duplex",
-      "triplex",
-    ],
-    required: true,
-  },
-  bedrooms: {
-    type: Number,
-    required: true,
-  },
-  bathrooms: {
-    type: Number,
-    required: true,
-  },
-  area: {
-    type: Number,
-    required: true,
-  },
-  amenities: {
-    type: [String],
-  },
-  photos: {
-    type: [
-      {
-        url: String,
-        publicId: String,
+    status: {
+      type: String,
+      enum: ["active", "sold", "rented", "inactive"],
+      default: "active",
+    },
+    location: {
+      city: {
+        type: String,
+        required: true,
       },
-    ],
-    required: true,
+      address: {
+        type: String,
+        required: true,
+      },
+    },
+    propertyType: {
+      type: String,
+      enum: [
+        "flat",
+        "apartment",
+        "house",
+        "villa",
+        "penthouse",
+        "duplex",
+        "triplex",
+      ],
+      required: true,
+    },
+    bedrooms: {
+      type: Number,
+      required: true,
+    },
+    bathrooms: {
+      type: Number,
+      required: true,
+    },
+    area: {
+      type: Number,
+      required: true,
+    },
+    amenities: {
+      type: [String],
+    },
+    photos: {
+      type: [
+        {
+          url: String,
+          publicId: String,
+        },
+      ],
+      required: true,
+    },
+    propertyOwner: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "user",
+    },
   },
-  propertyOwner: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "user",
-  },
-});
+  { timestamps: true },
+);
 
 const listingModel = mongoose.model("listing", listingSchema);
 export default listingModel;

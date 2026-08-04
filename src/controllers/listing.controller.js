@@ -45,13 +45,14 @@ async function createListing(req, res) {
     title,
     description,
     price,
-    propertyType,
+    propertyType: propertyType.toLowerCase(),
     bedrooms,
     bathrooms,
     location,
     area,
     propertyOwner: req.user.id,
     photos: imageUrls,
+    status,
   });
 
   fs.rmSync(`uploads/user-${req.user.id}`, { recursive: true });
@@ -71,6 +72,9 @@ async function updateListing(req, res) {
   for (const key in req.body) {
     if (!updates[key] && req.body[key]) {
       updates[key] = req.body[key];
+      if (key === "propertyType") {
+        updates[key] = req.body[key].toLowerCase();
+      }
     }
   }
 
@@ -79,13 +83,16 @@ async function updateListing(req, res) {
   } else if (0 === Object.entries(updates).length) {
     throw new AppError("Please send fields and there values to update", 400);
   }
-  const updatedListing = await listingModel.findByIdAndUpdate(
-    listingId,
+  const updatedListing = await listingModel.findOneAndUpdate(
+    { _id: listingId, propertyOwner: req.user.id },
     updates,
     {
       returnDocument: "after",
     },
   );
+  if (!updatedListing) {
+    return ApiResponse.error(res, "No listing exist with given id", null, 400);
+  }
   ApiResponse.success(res, "Updated listing", updatedListing, 200);
 }
 async function deleteListing(req, res) {
